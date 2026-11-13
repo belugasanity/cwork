@@ -120,6 +120,8 @@ cwork --help
 
 Optional executable overrides: **CWORK_NVIM** and **CWORK_CODEX**. Cwork uses an isolated Neovim configuration with swap files and shared command history disabled. If Codex needs authentication, use your usual Codex login process.
 
+If setup reports a GitHub API rate limit while looking up the Neovim download, retry after the limit resets or supply `GH_TOKEN` / `GITHUB_TOKEN` for the release lookup. GitHub Actions passes its built-in read-only token automatically. The token is used only for GitHub API metadata requests and is not saved in the project or passed to the download host.
+
 ## Development
 
 ```sh

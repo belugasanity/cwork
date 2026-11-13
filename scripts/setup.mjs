@@ -5,6 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { appRoot, runtime, checkVersion } from '../lib/launcher.mjs';
 import { neovimDistribution } from '../lib/platform.mjs';
 import { npmInvocation } from '../lib/npm.mjs';
+import { fetchNeovimRelease } from '../lib/releases.mjs';
 import { fileURLToPath } from 'node:url';
 
 export async function setup() {
@@ -20,9 +21,7 @@ export async function setup() {
     const distribution = neovimDistribution();
     const filename = distribution.archive;
     console.log(`Downloading official stable Neovim (${filename})…`);
-    const releaseResponse = await fetch('https://api.github.com/repos/neovim/neovim/releases/tags/stable', { headers: { 'User-Agent': 'codex-workbench-setup' } });
-    if (!releaseResponse.ok) throw new Error(`GitHub release lookup failed (${releaseResponse.status}).`);
-    const release = await releaseResponse.json();
+    const release = await fetchNeovimRelease();
     const asset = release.assets.find(asset => asset.name === filename);
     if (!asset?.digest?.startsWith('sha256:')) throw new Error('No checksummed official Neovim download found.');
     const response = await fetch(asset.browser_download_url);

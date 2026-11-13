@@ -17,12 +17,16 @@ jobs:
           package-manager-cache: false
       - run: npm test
       - run: npm run setup
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - run: npm run check
       # Windows ConPTY requires a console; run its editor check interactively.
       - if: runner.os != 'Windows'
         run: npm run test:editor
       - if: runner.os != 'Windows'
         name: Verify local installer and command
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           sh ./install.sh --prefix "$RUNNER_TEMP/cwork-local"
           "$RUNNER_TEMP/cwork-local/bin/cwork" --check
