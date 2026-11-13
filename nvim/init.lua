@@ -262,7 +262,20 @@ function S.find()
   end)
 end
 function S.codex()
-  if valid(S.term_win) then focus(S.term_win); vim.cmd.startinsert() end
+  if not valid(S.term_win) then return end
+  local current = api.nvim_get_current_win()
+  if current ~= S.term_win and api.nvim_win_get_config(current).relative == '' then S.neovim_win = current end
+  focus(S.term_win)
+  vim.cmd.startinsert()
+end
+function S.toggle_focus()
+  if not valid(S.term_win) then return end
+  if api.nvim_get_current_win() == S.term_win then
+    focus(valid(S.neovim_win) and S.neovim_win or S.edit_win)
+  else
+    if valid(S.help_win) then S.close_help(false) end
+    S.codex()
+  end
 end
 function S.close_help(restore)
   local window = S.help_win
@@ -339,8 +352,8 @@ bind('<F4>', function() S.refresh_changes(function() S.browser('changes') end) e
 bind('<F5>', S.diff, 'Toggle HEAD diff')
 bind('<F6>', S.codex, 'Focus Codex')
 bind('<F10>', S.quit, 'Quit workspace')
-bind('<A-Left>', S.codex, 'Focus Codex')
-bind('<A-Right>', function() focus(S.edit_win) end, 'Focus editor')
+bind('<C-Left>', S.toggle_focus, 'Toggle Codex / Neovim focus')
+bind('<C-Right>', S.toggle_focus, 'Toggle Codex / Neovim focus')
 for key, action in pairs({
   e = function() S.browser('files') end, f = S.find,
   g = function() S.refresh_changes(function() S.browser('changes') end) end,

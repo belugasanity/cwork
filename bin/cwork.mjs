@@ -17,7 +17,7 @@ No directory argument uses your current directory.
 --check        Check local tools without opening the workspace
 
 F1 shortcuts · F2 files · F3 find file · F4 Git changes · F5 diff · F6 Codex
-Ctrl+S save · Alt+Left/Right switch panes · F10 quit
+Ctrl+S save · Ctrl+Left or Ctrl+Right toggle panes · F10 quit
 Inside the workspace: :Shortcuts or Space h also opens the searchable reference.
 
 First-time setup: npm run setup && npm link`);

@@ -35,11 +35,13 @@ The command uses the current directory by default. It returns to your shell when
 | **F4** | Git changes; Enter opens the selected file with its diff |
 | **F5** | Toggle a HEAD diff for the current file |
 | **F6** | Focus Codex and resume typing in the CLI |
-| **Alt+Left / Alt+Right** | Switch to Codex / editor |
+| **Ctrl+Left / Ctrl+Right** | Either shortcut toggles between Codex and Neovim |
 | **Ctrl+S** | Save the file, including from insert mode |
 | **F10** | Quit, with confirmation and unsaved-edit choices |
 
 The right pane switches between the browser and your file so the editor keeps its full width. A diff shows HEAD above the working file in the right pane; Codex stays on the left. Use the mouse or normal Vim window commands to resize splits.
+
+**Ctrl+Left** and **Ctrl+Right** both switch to whichever side is not focused. They work from Normal, Insert, and Codex terminal-input mode. Returning to Codex resumes terminal input; returning to Neovim restores its last focused pane, including a diff pane.
 
 This is real Neovim editing: **i** inserts text, **Esc** returns to normal mode, **:w** saves, **u** undoes, **Ctrl+R** redoes, **/text** searches, and **]c / [c** move between diff changes. **:bnext**, **:bprevious**, and **:ls** navigate open buffers.
 
@@ -86,7 +88,7 @@ export PATH="$HOME/.local/bin:$PATH"
 
 Now run `cwork` inside any project directory. A custom installation prefix is supported with `sh ./install.sh --prefix /your/prefix`; the command is placed in that prefix's `bin` directory. Keep the source folder in place: the launcher points to it. To remove a user-local install, delete only `~/.local/bin/cwork` (or your custom prefix's `bin/cwork`). If you move the source or change your Node.js installation, rerun the installer to update its paths. Existing unrelated commands are never overwritten.
 
-On Mac keyboards you may need **Fn+F2** to send F2, and Option-arrow behavior depends on terminal settings. You can use the following alternatives in Neovim normal mode:
+On Mac keyboards you may need **Fn+F2** to send F2. If your OS or terminal intercepts Ctrl+Left/Right, reassign the conflicting shortcut or use F2/F6. You can also use the following alternatives in Neovim normal mode:
 
 | Shortcut | Action |
 | --- | --- |
