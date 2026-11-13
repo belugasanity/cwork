@@ -1,0 +1,6 @@
+.tools/
+test-results/
+node_modules/
+*.log
+tests/.project-*/
+artifacts/

@@ -1,0 +1,30 @@
+{
+  "name": "codex-workbench",
+  "version": "2.0.0",
+  "private": true,
+  "description": "One-command terminal workspace: Codex beside Neovim and a file browser",
+  "type": "module",
+  "bin": {
+    "cwork": "bin/cwork.mjs"
+  },
+  "scripts": {
+    "start": "node bin/cwork.mjs",
+    "setup": "node scripts/setup.mjs",
+    "install:local": "node scripts/install.mjs",
+    "bundle": "node scripts/bundle.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:editor": "node tests/editor.mjs",
+    "check": "node bin/cwork.mjs --check"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "nvim/",
+    "scripts/",
+    "README.md",
+    "install.sh"
+  ]
+}

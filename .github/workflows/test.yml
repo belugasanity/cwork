@@ -1,0 +1,28 @@
+name: Terminal workspace checks
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-15, macos-15-intel, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - run: npm test
+      - run: npm run setup
+      - run: npm run check
+      # Windows ConPTY requires a console; run its editor check interactively.
+      - if: runner.os != 'Windows'
+        run: npm run test:editor
+      - if: runner.os != 'Windows'
+        name: Verify local installer and command
+        run: |
+          sh ./install.sh --prefix "$RUNNER_TEMP/cwork-local"
+          "$RUNNER_TEMP/cwork-local/bin/cwork" --check
