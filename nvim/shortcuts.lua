@@ -1,3 +1,4 @@
+local focus_shortcut = Cwork.focus_shortcut
 return {
   'NEOVIM SHORTCUTS',
   'Press / to search this reference, then Enter. Use n / N for matches.',
@@ -20,7 +21,7 @@ return {
   '  F6 / Space c       Focus Codex and resume terminal input',
   '  F10 / Space q      Quit with confirmation and unsaved-edit choices',
   '  Ctrl+S             Save the current file (Normal or Insert mode)',
-  '  Ctrl+Left/Right    Either key toggles between Codex and Neovim',
+  ('  %-22s Either key toggles between Codex and Neovim'):format(focus_shortcut),
   '  :Shortcuts         Open this reference from the command line',
   '',
   'FILE BROWSER',
@@ -84,7 +85,7 @@ return {
   '  :Files / :FindFile  Open the file browser / project file finder',
   '',
   'PANES / CODEX TERMINAL',
-  '  Ctrl+Left/Right    Either key switches to the other side from any mode',
+  ('  %-22s Either key switches to the other side from any mode'):format(focus_shortcut),
   '                     Returning to Neovim restores its last focused pane',
   '  Ctrl+\\, Ctrl+N    Leave Codex input and enter Normal mode',
   '  F6 or :Codex       Return to Codex input',

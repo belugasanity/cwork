@@ -1,6 +1,8 @@
 -- A self-contained terminal workspace. No plugin manager or user config changes.
 local api, uv = vim.api, vim.uv
 local S = { root = vim.fs.normalize(vim.env.CWORK_ROOT or uv.cwd()), expanded = {}, rows = {}, statuses = {}, nav_mode = 'files', show_hidden = true }
+local focus_modifier = vim.fn.has('macunix') == 1 and 'C-S' or 'C'
+S.focus_shortcut = focus_modifier == 'C-S' and 'Ctrl+Shift+Left/Right' or 'Ctrl+Left/Right'
 _G.Cwork = S
 local excluded = { ['.git'] = true, node_modules = true, ['.tools'] = true, ['.venv'] = true, __pycache__ = true }
 local function join(...) return vim.fs.joinpath(...) end
@@ -352,8 +354,8 @@ bind('<F4>', function() S.refresh_changes(function() S.browser('changes') end) e
 bind('<F5>', S.diff, 'Toggle HEAD diff')
 bind('<F6>', S.codex, 'Focus Codex')
 bind('<F10>', S.quit, 'Quit workspace')
-bind('<C-Left>', S.toggle_focus, 'Toggle Codex / Neovim focus')
-bind('<C-Right>', S.toggle_focus, 'Toggle Codex / Neovim focus')
+bind('<' .. focus_modifier .. '-Left>', S.toggle_focus, 'Toggle Codex / Neovim focus')
+bind('<' .. focus_modifier .. '-Right>', S.toggle_focus, 'Toggle Codex / Neovim focus')
 for key, action in pairs({
   e = function() S.browser('files') end, f = S.find,
   g = function() S.refresh_changes(function() S.browser('changes') end) end,
