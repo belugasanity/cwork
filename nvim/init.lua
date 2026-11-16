@@ -419,13 +419,18 @@ api.nvim_create_autocmd('VimEnter', { once = true, callback = function()
       -- inspired-github theme uses near-black input text, so override the
       -- theme for this embedded Codex instance without changing ~/.codex.
       local theme_args = { '-c', 'tui.theme="dark"' }
+      local codex_args = vim.env.CWORK_MODE == 'resume' and { 'resume' } or {}
       if executable:lower():match('%.js$') then
         command = { vim.env.CWORK_NODE or 'node', executable }
         vim.list_extend(command, theme_args)
-      elseif executable:lower():match('%.cmd$') or executable:lower():match('%.bat$') then command = { vim.env.ComSpec or 'cmd.exe', '/d', '/s', '/c', '""' .. executable .. '""' }
+        vim.list_extend(command, codex_args)
+      elseif executable:lower():match('%.cmd$') or executable:lower():match('%.bat$') then
+        local command_line = '""' .. executable .. '""' .. (vim.env.CWORK_MODE == 'resume' and ' resume' or '')
+        command = { vim.env.ComSpec or 'cmd.exe', '/d', '/s', '/c', command_line }
       else
         command = { executable }
         vim.list_extend(command, theme_args)
+        vim.list_extend(command, codex_args)
       end
     end
     -- Apple Terminal does not set COLORTERM, so the embedded Codex process

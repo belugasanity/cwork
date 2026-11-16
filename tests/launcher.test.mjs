@@ -7,6 +7,8 @@ import { parseArgs, editorArgs, findExecutable } from '../lib/launcher.mjs';
 
 test('defaults to the current project directory', () => {
   assert.equal(parseArgs([]).directory, process.cwd());
+  assert.equal(parseArgs(['resume']).resume, true);
+  assert.equal(parseArgs(['resume', 'some folder']).directory, path.resolve('some folder'));
   assert.equal(parseArgs(['--shell']).shell, true);
   assert.equal(parseArgs(['--editor-only']).editorOnly, true);
 });

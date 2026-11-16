@@ -9,9 +9,11 @@ try {
     console.log(`cwork — Codex + Neovim, in this terminal
 
 Usage: cwork [directory] [--shell | --editor-only]
+       cwork resume [directory]
        cwork --check
 
 No directory argument uses your current directory.
+resume         Open Codex's menu for selecting a previous chat
 --shell        Start a shell instead of Codex in the left pane
 --editor-only  Open just the editor and file browser
 --check        Check local tools without opening the workspace
@@ -21,7 +23,7 @@ Ctrl+S save · ${process.platform === 'darwin' ? 'Ctrl+Shift+Left/Right' : 'Ctrl
 Inside the workspace: :Shortcuts or Space h also opens the searchable reference.
 
 First-time setup: npm run setup && npm link`);
-  } else if (options.version) console.log('cwork 2.0.0');
+  } else if (options.version) console.log('cwork 2.1.0');
   else {
     const tools = runtime();
     if (options.check) {
@@ -38,7 +40,8 @@ First-time setup: npm run setup && npm link`);
       const child = spawn(tools.nvim, editorArgs(), {
         cwd: options.directory, stdio: 'inherit',
         env: { ...process.env, NVIM_APPNAME: 'cwork', CWORK_ROOT: options.directory,
-          CWORK_CODEX: tools.codex || '', CWORK_NODE: process.execPath, CWORK_MODE: options.editorOnly ? 'editor' : options.shell ? 'shell' : 'codex' },
+          CWORK_CODEX: tools.codex || '', CWORK_NODE: process.execPath,
+          CWORK_MODE: options.editorOnly ? 'editor' : options.shell ? 'shell' : options.resume ? 'resume' : 'codex' },
       });
       process.on('SIGINT', () => {});
       child.on('error', error => { console.error(`cwork: ${error.message}`); process.exitCode = 1; });

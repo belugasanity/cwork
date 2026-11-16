@@ -10,6 +10,12 @@ After installation, in any project directory, type:
 cwork
 ```
 
+To open Codex's menu and choose a previous chat:
+
+```sh
+cwork resume
+```
+
 Or choose a directory:
 
 ```sh
