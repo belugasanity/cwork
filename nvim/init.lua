@@ -73,11 +73,24 @@ vim.cmd('syntax enable')
 vim.cmd.colorscheme('habamax')
 for group, value in pairs({
   Normal = { fg = '#d4d9df', bg = '#14171a' }, NormalNC = { fg = '#c3cbd2', bg = '#14171a' },
+  CodexTerminal = { fg = '#eef2f5', bg = '#101317' },
   StatusLine = { fg = '#bed8c7', bg = '#27382e' }, TabLineFill = { bg = '#1c2520', fg = '#aacbb5' },
   WinSeparator = { fg = '#597361', bg = '#14171a' }, CworkDirectory = { fg = '#9ec5e8', bold = true },
   CworkHeading = { fg = '#a3e6c4', bold = true }, CworkMuted = { fg = '#788791' },
   CworkChange = { fg = '#d6ba84' }, CworkAdded = { fg = '#9bd3ac' }, CworkDeleted = { fg = '#e59b9b' },
 }) do api.nvim_set_hl(0, group, value) end
+-- Codex uses the terminal's ANSI colors extensively. Keep its neutral colors
+-- bright enough to remain readable against the dedicated terminal background.
+for index, color in pairs({
+  -- Codex uses ANSI black for the editable prompt text; on cwork's dark
+  -- background, map it to a readable neutral instead of near-black.
+  [0] = '#eef2f5', [1] = '#f28b82', [2] = '#9bd3ac', [3] = '#f2cc8f',
+  [4] = '#8ab4f8', [5] = '#d7aefb', [6] = '#8bd5ca', [7] = '#eef2f5',
+  -- Codex uses bright black/dim gray for much of its explanatory text.
+  -- Keep that neutral readable instead of allowing it to disappear into the background.
+  [8] = '#b7c0c9', [9] = '#ffaaa3', [10] = '#b8e6c1', [11] = '#ffe0a6',
+  [12] = '#a9c7ff', [13] = '#e5c6ff', [14] = '#b1eee4', [15] = '#ffffff',
+}) do vim.g['terminal_color_' .. index] = color end
 vim.opt.tabline = '  CWORK  |  ' .. vim.fs.basename(S.root):gsub('%%', '%%%%') .. ' %= F1 Help   F2 Files   F3 Find   F4 Changes   F5 Diff   F6 Codex  '
 vim.opt.statusline = ' %{mode()}  %f %m%r %= %y  %l:%c  |  Ctrl+S Save   F10 Quit '
 
@@ -394,18 +407,36 @@ api.nvim_create_autocmd('VimEnter', { once = true, callback = function()
     S.term_win = api.nvim_get_current_win()
     S.term_buf = api.nvim_create_buf(false, true)
     api.nvim_win_set_buf(S.term_win, S.term_buf)
-    api.nvim_win_set_width(S.term_win, math.floor(vim.o.columns * 0.48))
+    api.nvim_win_set_width(S.term_win, math.floor(vim.o.columns * 0.50))
     vim.wo[S.term_win].number = false; vim.wo[S.term_win].signcolumn = 'no'
+    vim.wo[S.term_win].winhighlight = 'Normal:CodexTerminal,NormalNC:CodexTerminal,EndOfBuffer:CodexTerminal'
     vim.wo[S.term_win].winbar = ' CODEX  |  F2 files   F6 return here'
     local command
     if vim.env.CWORK_MODE == 'shell' then command = { vim.fn.has('win32') == 1 and (vim.env.ComSpec or 'cmd.exe') or (vim.env.SHELL or '/bin/sh') }
     else
       local executable = vim.env.CWORK_CODEX or 'codex'
-      if executable:lower():match('%.js$') then command = { vim.env.CWORK_NODE or 'node', executable }
+      -- cwork has a dark terminal background. The user's custom
+      -- inspired-github theme uses near-black input text, so override the
+      -- theme for this embedded Codex instance without changing ~/.codex.
+      local theme_args = { '-c', 'tui.theme="dark"' }
+      if executable:lower():match('%.js$') then
+        command = { vim.env.CWORK_NODE or 'node', executable }
+        vim.list_extend(command, theme_args)
       elseif executable:lower():match('%.cmd$') or executable:lower():match('%.bat$') then command = { vim.env.ComSpec or 'cmd.exe', '/d', '/s', '/c', '""' .. executable .. '""' }
-      else command = { executable } end
+      else
+        command = { executable }
+        vim.list_extend(command, theme_args)
+      end
     end
-    S.job = vim.fn.jobstart(command, { term = true, cwd = S.root, on_exit = function(_, code) vim.schedule(function() tell('Terminal exited (' .. code .. '). F2 still opens your files.') end) end })
+    -- Apple Terminal does not set COLORTERM, so the embedded Codex process
+    -- can select its low-color fallback and render the prompt as black.
+    local terminal_env = vim.fn.has('macunix') == 1 and {
+      COLORTERM = 'truecolor',
+      -- Apple Terminal and Neovim disagree about the ANSI palette used by
+      -- Codex's prompt. Let the prompt inherit cwork's readable foreground.
+      NO_COLOR = '1',
+    } or {}
+    S.job = vim.fn.jobstart(command, { term = true, cwd = S.root, env = terminal_env, on_exit = function(_, code) vim.schedule(function() tell('Terminal exited (' .. code .. '). F2 still opens your files.') end) end })
     if S.job <= 0 then tell('Unable to launch terminal process.', vim.log.levels.ERROR) else vim.cmd.startinsert() end
   end
   S.timer = uv.new_timer()
