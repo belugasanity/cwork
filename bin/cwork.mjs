@@ -23,7 +23,7 @@ Ctrl+S save · ${process.platform === 'darwin' ? 'Ctrl+Shift+Left/Right' : 'Ctrl
 Inside the workspace: :Shortcuts or Space h also opens the searchable reference.
 
 First-time setup: npm run setup && npm link`);
-  } else if (options.version) console.log('cwork 2.1.0');
+  } else if (options.version) console.log('cwork 2.1.1');
   else {
     const tools = runtime();
     if (options.check) {

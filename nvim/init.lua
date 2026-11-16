@@ -2,7 +2,7 @@
 local api, uv = vim.api, vim.uv
 local S = { root = vim.fs.normalize(vim.env.CWORK_ROOT or uv.cwd()), expanded = {}, rows = {}, statuses = {}, nav_mode = 'files', show_hidden = true }
 local focus_modifier = vim.fn.has('macunix') == 1 and 'C-S' or 'C'
-S.focus_shortcut = focus_modifier == 'C-S' and 'Ctrl+Shift+Left/Right' or 'Ctrl+Left/Right'
+S.focus_shortcut = focus_modifier == 'C-S' and 'Ctrl+Shift+Left/Right (or Ctrl+Left/Right)' or 'Ctrl+Left/Right'
 _G.Cwork = S
 local excluded = { ['.git'] = true, node_modules = true, ['.tools'] = true, ['.venv'] = true, __pycache__ = true }
 local function join(...) return vim.fs.joinpath(...) end
@@ -91,7 +91,7 @@ for index, color in pairs({
   [8] = '#b7c0c9', [9] = '#ffaaa3', [10] = '#b8e6c1', [11] = '#ffe0a6',
   [12] = '#a9c7ff', [13] = '#e5c6ff', [14] = '#b1eee4', [15] = '#ffffff',
 }) do vim.g['terminal_color_' .. index] = color end
-vim.opt.tabline = '  CWORK  |  ' .. vim.fs.basename(S.root):gsub('%%', '%%%%') .. ' %= F1 Help   F2 Files   F3 Find   F4 Changes   F5 Diff   F6 Codex  '
+vim.opt.tabline = '  CWORK  |  ' .. vim.fs.basename(S.root):gsub('%%', '%%%%') .. ' %= F1 Help   F2 Files   F3 Find   F4 Changes   F5 Diff   F6 Codex   F7 Toggle  '
 vim.opt.statusline = ' %{mode()}  %f %m%r %= %y  %l:%c  |  Ctrl+S Save   F10 Quit '
 
 S.ns = api.nvim_create_namespace('cwork')
@@ -366,9 +366,16 @@ bind('<F3>', S.find, 'Find file')
 bind('<F4>', function() S.refresh_changes(function() S.browser('changes') end) end, 'Review Git changes')
 bind('<F5>', S.diff, 'Toggle HEAD diff')
 bind('<F6>', S.codex, 'Focus Codex')
+bind('<F7>', S.toggle_focus, 'Toggle Codex / Neovim focus')
 bind('<F10>', S.quit, 'Quit workspace')
 bind('<' .. focus_modifier .. '-Left>', S.toggle_focus, 'Toggle Codex / Neovim focus')
 bind('<' .. focus_modifier .. '-Right>', S.toggle_focus, 'Toggle Codex / Neovim focus')
+if focus_modifier == 'C-S' then
+  -- Some macOS terminals discard Shift from modified arrow sequences. Keep
+  -- the unshifted form available after the system Spaces shortcuts are freed.
+  bind('<C-Left>', S.toggle_focus, 'Toggle Codex / Neovim focus')
+  bind('<C-Right>', S.toggle_focus, 'Toggle Codex / Neovim focus')
+end
 for key, action in pairs({
   e = function() S.browser('files') end, f = S.find,
   g = function() S.refresh_changes(function() S.browser('changes') end) end,
@@ -381,6 +388,7 @@ api.nvim_create_user_command('Review', S.diff, {})
 api.nvim_create_user_command('Shortcuts', S.help, {})
 api.nvim_create_user_command('FindFile', S.find, {})
 api.nvim_create_user_command('Codex', S.codex, {})
+api.nvim_create_user_command('ToggleFocus', S.toggle_focus, {})
 api.nvim_create_user_command('CworkQuit', S.quit, {})
 
 api.nvim_create_autocmd('VimEnter', { once = true, callback = function()
